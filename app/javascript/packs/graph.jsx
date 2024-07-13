@@ -27,6 +27,7 @@ const NodeShape = PropTypes.shape({
 const LinkShape = PropTypes.shape({
   source: PropTypes.string.isRequired,
   target: PropTypes.string.isRequired,
+  topics: PropTypes.arrayOf(String).isRequired,
 })
 
 const SnapshotShape = PropTypes.shape({
@@ -40,7 +41,7 @@ const Inspector = ({ source, target, topics }) => (
     {source && target ? (
       <span>
         <strong>{source}</strong> and <strong>{target}</strong> chatted about{' '}
-        <em>{topics}</em>
+        <em>{topics.join(', ').replace(/, ([^,]*)$/, ' and $1')}</em>
       </span>
     ) : (
       <em>Hover your cursor over a connection line</em>
@@ -50,14 +51,13 @@ const Inspector = ({ source, target, topics }) => (
 Inspector.propTypes = {
   source: PropTypes.string,
   target: PropTypes.string,
-  topics: PropTypes.string,
+  topics: PropTypes.arrayOf(String),
 }
 
 const App = ({ snapshot }) => {
   const [currentSource, setCurrentSource] = React.useState()
   const [currentTarget, setCurrentTarget] = React.useState()
-
-  const topics = 'Cheese and Wine' // FIXME
+  const [currentTopics, setCurrentTopics] = React.useState()
 
   const handleClickNode = _nodeId => {}
 
@@ -67,14 +67,21 @@ const App = ({ snapshot }) => {
 
   const handleClickLink = (_source, _target) => {}
 
-  const handleMouseOverLink = (source, target) => {
+  const handleMouseOverLink = (source, target, topics) => {
     setCurrentSource(source)
     setCurrentTarget(target)
+    setCurrentTopics(getLinkTopics(source, target))
   }
 
   const handleMouseOutLink = (_source, _target) => {
     setCurrentSource(undefined)
     setCurrentTarget(undefined)
+    setCurrentTopics(undefined)
+  }
+
+  const getLinkTopics = (source, target) => {
+    let link = snapshot.links.find((element) => element['source'] === source && element['target'] === target )
+    return link['topics'];
   }
 
   return (
@@ -83,7 +90,7 @@ const App = ({ snapshot }) => {
         <Inspector
           source={currentSource}
           target={currentTarget}
-          topics={topics}
+          topics={currentTopics}
         />
       </div>
       <Graph
@@ -107,8 +114,9 @@ App.propTypes = {
 const DUMMY_SNAPSHOT = {
   nodes: [{ id: 'Harry' }, { id: 'Sally' }, { id: 'Alice' }],
   links: [
-    { source: 'Harry', target: 'Sally' },
-    { source: 'Harry', target: 'Alice' },
+    { source: 'Harry', target: 'Sally', topics: ["cheese", "crackers", "wine"] },
+    { source: 'Harry', target: 'Alice', topics: ["cats", "dogs"] },
+    { source: 'Alice', target: 'Sally', topics: ["the weather"] },
   ],
 }
 
