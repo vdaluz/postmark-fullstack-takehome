@@ -4,6 +4,6 @@ namespace :snapshot do
     snapshot = Snapshot.take
     snapshot.save
 
-    puts "This Rake task doesn’t do much right now. It’s only got a few pointers to get you started!"
+    puts "Snapshot complete."
   end
 end
