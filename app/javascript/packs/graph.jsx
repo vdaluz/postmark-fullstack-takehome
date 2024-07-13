@@ -7,6 +7,9 @@ import { Graph } from 'react-d3-graph'
 
 const D3_GRAPH_CONFIG = {
   linkHighlightBehavior: true,
+  automaticRearrangeAfterDropNode: true,
+  collapsible: true,
+  directed: true,
   width: 900,
   height: 600,
   node: {
@@ -80,8 +83,16 @@ const App = ({ snapshot }) => {
   }
 
   const getLinkTopics = (source, target) => {
-    let link = snapshot.links.find((element) => element['source'] === source && element['target'] === target )
-    return link['topics'];
+    const link = snapshot.links.find((element) => element['source'] === source && element['target'] === target );
+    const reverse = snapshot.links.find((element) => element['source'] === target && element['target'] === source );
+    let topics = [];
+    if(link && link["topics"]){
+      topics.push(...link["topics"]);
+    }
+    if(reverse && reverse["topics"]){
+      topics.push(...reverse["topics"]);
+    }
+    return topics;
   }
 
   return (
